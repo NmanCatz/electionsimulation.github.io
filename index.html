@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Compact US Election Sandbox</title>
+    <!-- External Dependencies -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://unpkg.com/topojson@3"></script>
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <h1>Interactive US Election Simulator</h1>
+    <div class="subtitle">Tap map states to cycle manual overrides | Clear Third Party box to run standard two-party system</div>
+
+    <!-- 4x2 Hyper-Compact Variable Panel Matrix -->
+    <div class="control-grid">
+        <div class="panel-card">
+            <label>Blue Candidate</label>
+            <input type="text" id="demNameInput" value="Democrats">
+        </div>
+        <div class="panel-card">
+            <label>Red Candidate</label>
+            <input type="text" id="repNameInput" value="Republicans">
+        </div>
+        <div class="panel-card">
+            <label>Third Party (Optional)</label>
+            <input type="text" id="thirdNameInput" value="" placeholder="Empty = Disabled">
+        </div>
+        <div class="panel-card">
+            <label id="tiltLabel">National Slant: Balanced (0%)</label>
+            <input type="range" id="partisanTilt" min="-100" max="100" value="0">
+        </div>
+        <div class="panel-card">
+            <label id="swingLabel">Swing Push: Balanced (0%)</label>
+            <input type="range" id="swingTilt" min="-100" max="100" value="0">
+        </div>
+        <div class="panel-card">
+            <label id="chaosLabel">Chaos / Volatility: Low (10%)</label>
+            <input type="range" id="chaosFactor" min="0" max="100" value="10">
+        </div>
+        <div class="panel-card" id="thirdSliderCard" style="opacity: 0.3; pointer-events: none;">
+            <label id="thirdLabel">Third Party Appeal: 0%</label>
+            <input type="range" id="thirdStrength" min="0" max="100" value="0">
+        </div>
+        <div class="panel-card">
+            <label id="speedLabel">Speed: Fast (200ms)</label>
+            <input type="range" id="simSpeed" min="40" max="800" step="40" value="200">
+        </div>
+    </div>
+
+    <!-- Compact Unified Score Tracker Frame -->
+    <div class="scoreboard-container">
+        <div class="score-flex">
+            <div class="hero-block dem-brand dem-c" id="demHero">
+                <span class="hero-name" id="demLabelName">Democrats</span>
+                <span class="hero-score"><span id="demScore">0</span> EV</span>
+                <span class="hero-pop" id="demPopDisplay">0 (0.0%)</span>
+            </div>
+            
+            <div class="hero-block center-third third-brand third-c" id="thirdHero">
+                <span class="hero-name" id="thirdLabelName">Third Party</span>
+                <span class="hero-score"><span id="thirdScore">0</span> EV</span>
+                <span class="hero-pop" id="thirdPopDisplay">0 (0.0%)</span>
+            </div>
+
+            <div class="status-hub">
+                <span class="badge" id="neutralScore">538 REMAINING</span>
+                <div class="banner-text" id="victoryBanner">LIVE TRACKING</div>
+            </div>
+            
+            <div class="hero-block right rep-brand rep-c" id="repHero">
+                <span class="hero-name" id="repLabelName">Republicans</span>
+                <span class="hero-score"><span id="repScore">0</span> EV</span>
+                <span class="hero-pop" id="repPopDisplay">0 (0.0%)</span>
+            </div>
+        </div>
+        
+        <div class="bar-frame">
+            <div class="mid-pin"></div>
+            <div class="b-fill" id="blueBar"></div>
+            <div class="t-fill" id="thirdBar"></div>
+            <div class="r-fill" id="redBar"></div>
+        </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="shelf">
+        <button id="playBtn">Run Election Simulation</button>
+        <button id="resetBtn">Reset Map Board</button>
+    </div>
+
+    <!-- Map Canvas Window Target -->
+    <div id="map-container">
+        <div class="tooltip" id="tooltip"></div>
+    </div>
+
+    <div id="ticker">Configure variables and tap run to execute tracking loops...</div>
+
+    <!-- Custom Simulation Script -->
+    <script src="script.js"></script>
+</body>
+</html>
