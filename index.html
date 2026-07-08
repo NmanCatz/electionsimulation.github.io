@@ -15,43 +15,7 @@
     <h1>Interactive US Election Simulator</h1>
     <div class="subtitle">Tap map states to cycle manual overrides | Clear Third Party box to run standard two-party system</div>
 
-    <!-- 4x2 Hyper-Compact Variable Panel Matrix -->
-    <div class="control-grid">
-        <div class="panel-card">
-            <label>Blue Candidate</label>
-            <input type="text" id="demNameInput" value="Democrats">
-        </div>
-        <div class="panel-card">
-            <label>Red Candidate</label>
-            <input type="text" id="repNameInput" value="Republicans">
-        </div>
-        <div class="panel-card">
-            <label>Third Party (Optional)</label>
-            <input type="text" id="thirdNameInput" value="" placeholder="Empty = Disabled">
-        </div>
-        <div class="panel-card">
-            <label id="tiltLabel">National Slant: Balanced (0%)</label>
-            <input type="range" id="partisanTilt" min="-100" max="100" value="0">
-        </div>
-        <div class="panel-card">
-            <label id="swingLabel">Swing Push: Balanced (0%)</label>
-            <input type="range" id="swingTilt" min="-100" max="100" value="0">
-        </div>
-        <div class="panel-card">
-            <label id="chaosLabel">Chaos / Volatility: Low (10%)</label>
-            <input type="range" id="chaosFactor" min="0" max="100" value="10">
-        </div>
-        <div class="panel-card" id="thirdSliderCard" style="opacity: 0.3; pointer-events: none;">
-            <label id="thirdLabel">Third Party Appeal: 0%</label>
-            <input type="range" id="thirdStrength" min="0" max="100" value="0">
-        </div>
-        <div class="panel-card">
-            <label id="speedLabel">Speed: Fast (200ms)</label>
-            <input type="range" id="simSpeed" min="40" max="800" step="40" value="200">
-        </div>
-    </div>
-
-    <!-- Compact Unified Score Tracker Frame -->
+    <!-- Compact Unified Score Tracker Frame (Kept at the top of the map) -->
     <div class="scoreboard-container">
         <div class="score-flex">
             <div class="hero-block dem-brand dem-c" id="demHero">
@@ -86,18 +50,55 @@
         </div>
     </div>
 
-    <!-- Buttons -->
+    <!-- Map Canvas Window Target (Moved up top) -->
+    <div id="map-container">
+        <div class="tooltip" id="tooltip"></div>
+    </div>
+
+    <!-- Simulation Live Status Ticker -->
+    <div id="ticker">Configure variables and tap run to execute tracking loops...</div>
+
+    <!-- Control Action Buttons -->
     <div class="shelf">
         <button id="playBtn">Run Election Simulation</button>
         <button id="resetBtn">Reset Map Board</button>
     </div>
 
-    <!-- Map Canvas Window Target -->
-    <div id="map-container">
-        <div class="tooltip" id="tooltip"></div>
+    <!-- 4x2 Hyper-Compact Variable Panel Matrix (Moved to the bottom) -->
+    <div class="control-grid">
+        <div class="panel-card">
+            <label>Blue Candidate</label>
+            <input type="text" id="demNameInput" value="Democrats">
+        </div>
+        <div class="panel-card">
+            <label>Red Candidate</label>
+            <input type="text" id="repNameInput" value="Republicans">
+        </div>
+        <div class="panel-card">
+            <label>Third Party (Optional)</label>
+            <input type="text" id="thirdNameInput" value="" placeholder="Empty = Disabled">
+        </div>
+        <div class="panel-card">
+            <label id="tiltLabel">National Slant: Balanced (0%)</label>
+            <input type="range" id="partisanTilt" min="-100" max="100" value="0">
+        </div>
+        <div class="panel-card">
+            <label id="swingLabel">Swing Push: Balanced (0%)</label>
+            <input type="range" id="swingTilt" min="-100" max="100" value="0">
+        </div>
+        <div class="panel-card">
+            <label id="chaosLabel">Chaos / Volatility: Low (10%)</label>
+            <input type="range" id="chaosFactor" min="0" max="100" value="10">
+        </div>
+        <div class="panel-card" id="thirdSliderCard" style="opacity: 0.3; pointer-events: none;">
+            <label id="thirdLabel">Third Party Appeal: 0%</label>
+            <input type="range" id="thirdStrength" min="0" max="100" value="0">
+        </div>
+        <div class="panel-card">
+            <label id="speedLabel">Speed: Fast (200ms)</label>
+            <input type="range" id="simSpeed" min="40" max="800" step="40" value="200">
+        </div>
     </div>
-
-    <div id="ticker">Configure variables and tap run to execute tracking loops...</div>
 
     <!-- Custom Simulation Script -->
     <script src="script.js"></script>
