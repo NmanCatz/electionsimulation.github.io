@@ -27,6 +27,34 @@ const statesData = {
     "Wyoming": { ev: 3, probRed: 0.95, turnout: 270000 }
 };
 
+// --- DYNAMIC TICKER COMMENTARY PHRASE MATRIX ---
+const tickerCommentary = {
+    safeWin: [
+        "⚡ <strong>[State] ([EV] EV)</strong> holds the line for the [Candidate]. No surprises here.",
+        "⚡ Network consensus: <strong>[State] ([EV] EV)</strong> is a lock for the [Candidate] as expected.",
+        "⚡ Projection: <strong>[State] ([EV] EV)</strong> safely lands in the [Candidate] column."
+    ],
+    battlegroundWin: [
+        "🔥 <strong>BATTLEGROUND ALERT:</strong> The [Candidate] pulls off a narrow victory in <strong>[State] ([EV] EV)</strong>!",
+        "🔥 Crucial call: <strong>[State] ([EV] EV)</strong> breaks for the [Candidate] after a fierce battle!",
+        "🔥 A massive sigh of relief at [Candidate] HQ as <strong>[State] ([EV] EV)</strong> is officially declared!"
+    ],
+    historicUpset: [
+        "🚨 <strong>POLITICAL EARTHQUAKE:</strong> <strong>[State] ([EV] EV)</strong> completely flips to the [Candidate]! An absolute shocker!",
+        "🚨 Unbelievable scenes on the map: The [Candidate] has shattered the baseline expectations in <strong>[State] ([EV] EV)</strong>!",
+        "🚨 Stop the presses! <strong>[State] ([EV] EV)</strong> pulls off a historic dynamic upset for the [Candidate]!"
+    ],
+    thirdPartyUpset: [
+        "🟨 <strong>BREAKING THE DUOPOLY:</strong> <strong>[State] ([EV] EV)</strong> completely rejects both major parties and breaks for [Candidate]!",
+        "🟨 Historic multi-party shift! <strong>[State] ([EV] EV)</strong>'s electoral votes are heading to [Candidate]!"
+    ],
+    recountEvent: [
+        "⚠️ <strong>PHOTO FINISH & RECOUNT:</strong> <strong>[State] ([EV] EV)</strong> triggered an automated recount at [Margin]%! After audit, [Candidate] pulls through!",
+        "⚠️ <strong>RECOUNT FLIP:</strong> Breathless drama in <strong>[State] ([EV] EV)</strong>! A mandatory recount has altered the raw margins, swinging the state to [Candidate]!",
+        "⚠️ <strong>AUDIT CONCLUDED:</strong> Retallying wraps up in <strong>[State] ([EV] EV)</strong>. [Candidate] secures the razor-thin certified victory!"
+    ]
+};
+
 let uncalledStates = [];
 let stateManualStatus = {}; 
 let demTotal = 0, repTotal = 0, thirdTotal = 0;
@@ -103,7 +131,7 @@ thirdInput.addEventListener("input", evaluateThirdPartyPresence);
 demInput.addEventListener("input", () => document.getElementById("demLabelName").innerText = demInput.value);
 repInput.addEventListener("input", () => document.getElementById("repLabelName").innerText = repInput.value);
 
-// Label Update Sliders Loops with amplified descriptive formatting
+// Sliders and descriptive formatting logic
 document.getElementById("partisanTilt").addEventListener("input", (e) => {
     const v = parseInt(e.target.value);
     let t = "Balanced";
@@ -161,49 +189,54 @@ function processNextState() {
     const stateName = uncalledStates.splice(randIndex, 1)[0];
     const stateInfo = statesData[stateName];
 
-    // Gather Slider Values
     const slant = parseInt(document.getElementById("partisanTilt").value); 
     const swing = parseInt(document.getElementById("swingTilt").value);   
     const chaos = parseInt(document.getElementById("chaosFactor").value);   
     const thirdStrength = parseInt(document.getElementById("thirdStrength").value);
 
-    // Core Mathematical Reconstruction: Build explicit target vote margins
     let redBaseShare = stateInfo.probRed; 
-    
-    // 1. Inject Global Partisan Slant directly to vote sharing parameters (Heavy Scaling)
     redBaseShare += (slant / 120); 
 
-    // 2. Target Core Swing/Battleground Polarizations exclusively
-    if (stateInfo.probRed >= 0.40 && stateInfo.probRed <= 0.60) {
+    const isSwingState = (stateInfo.probRed >= 0.40 && stateInfo.probRed <= 0.60);
+
+    if (isSwingState) {
         redBaseShare += (swing / 80); 
     }
 
-    // 3. Process Random Chaos Fluctuations
+    // Toned down from /50 to /250 so chaos represents a realistic ±20% max swing instead of ±50%
     if (chaos > 0) {
-        const noise = (Math.random() - 0.5) * (chaos / 50); 
+        const noise = (Math.random() - 0.5) * (chaos / 250); 
         redBaseShare += noise;
     }
 
-    // Keep bounds safe before accounting for Third Party presence
     redBaseShare = Math.max(0.02, Math.min(0.98, redBaseShare));
 
     let finalBlueShare = 1.0 - redBaseShare;
     let finalRedShare = redBaseShare;
     let finalThirdShare = 0;
 
-    // 4. Compute High Impact Third Party Injections
     if (isThirdActive && thirdStrength > 0) {
-        // Third party siphons and builds independent share ceiling up to 85%
         const pullFactor = thirdStrength / 115; 
         finalThirdShare = pullFactor * (1.0 - Math.abs(0.5 - redBaseShare) * 0.4);
         
-        // Re-allocate remaining fractions proportionally to Major Parties
         const sliceRemainder = 1.0 - finalThirdShare;
         finalRedShare *= sliceRemainder;
         finalBlueShare *= sliceRemainder;
     }
 
-    // Compare explicit final allocations to crown State Winner
+    // --- FUN FEATURE EXTRA: THE RECOUNT & INTERCEPT SYSTEM ---
+    // Widened the recount threshold from 0.006 (0.6%) to 0.015 (1.5%) for better simulation balance
+    let initialMargin = Math.abs(finalRedShare - finalBlueShare);
+    let isRecount = initialMargin < 0.015 && finalThirdShare < finalRedShare && finalThirdShare < finalBlueShare;
+    
+    if (isRecount) {
+        // Apply microscopic variance shift during the recount phase
+        const recountAuditShift = (Math.random() - 0.5) * 0.003; 
+        finalRedShare = Math.max(0, finalRedShare + recountAuditShift);
+        finalBlueShare = Math.max(0, finalBlueShare - recountAuditShift);
+    }
+
+    // Final Crown Determination post-recount audit logic
     let stateWinner = 'blue', finalColor = "#3b82f6";
     if (finalRedShare > finalBlueShare && finalRedShare > finalThirdShare) {
         stateWinner = 'red'; finalColor = "#ef4444";
@@ -211,7 +244,7 @@ function processNextState() {
         stateWinner = 'third'; finalColor = "#eab308";
     }
 
-    // Commit calculated metrics to counters
+    // Commit metrics to board counters
     repPopVotes += Math.round(stateInfo.turnout * finalRedShare);
     demPopVotes += Math.round(stateInfo.turnout * finalBlueShare);
     thirdPopVotes += Math.round(stateInfo.turnout * finalThirdShare);
@@ -220,11 +253,45 @@ function processNextState() {
     else if (stateWinner === 'blue') demTotal += stateInfo.ev;
     else thirdTotal += stateInfo.ev;
 
-    // Animate State Fill Change
     svg.selectAll(".state").filter(d => d.properties.name === stateName).transition().duration(180).attr("fill", finalColor);
     
-    let labelDisplayMap = stateWinner === 'red' ? repInput.value : stateWinner === 'blue' ? demInput.value : activeThirdName;
-    document.getElementById("ticker").innerHTML = `⚡ Call: ${stateName} (${stateInfo.ev} EV) → <span style="color:${finalColor}">${labelDisplayMap.toUpperCase()} (${(eval('final' + stateWinner.charAt(0).toUpperCase() + stateWinner.slice(1) + 'Share') * 100).toFixed(1)}%)</span>`;
+    const partyNameMap = {
+        'blue': demInput.value || "Democrats",
+        'red': repInput.value || "Republicans",
+        'third': activeThirdName || "Third Party"
+    };
+    const partyShareMap = {
+        'blue': finalBlueShare,
+        'red': finalRedShare,
+        'third': finalThirdShare
+    };
+
+    let labelDisplayMap = partyNameMap[stateWinner];
+    let winningPercentage = (partyShareMap[stateWinner] * 100).toFixed(1);
+    const isUpset = (stateWinner === 'red' && stateInfo.probRed <= 0.20) || (stateWinner === 'blue' && stateInfo.probRed >= 0.80);
+
+    // Phrase Matrix router updates
+    let phrasePool = [];
+    if (isRecount) {
+        phrasePool = tickerCommentary.recountEvent;
+    } else if (stateWinner === 'third') {
+        phrasePool = tickerCommentary.thirdPartyUpset;
+    } else if (isUpset) {
+        phrasePool = tickerCommentary.historicUpset;
+    } else if (isSwingState) {
+        phrasePool = tickerCommentary.battlegroundWin;
+    } else {
+        phrasePool = tickerCommentary.safeWin;
+    }
+
+    let rawPhrase = phrasePool[Math.floor(Math.random() * phrasePool.length)];
+    let dynamicCommentary = rawPhrase
+        .replace("[State]", stateName)
+        .replace("[EV]", stateInfo.ev)
+        .replace("[Margin]", (initialMargin * 100).toFixed(2))
+        .replace("[Candidate]", `<span style="color:${finalColor}; font-weight:bold;">${labelDisplayMap.toUpperCase()} (${winningPercentage}%)</span>`);
+
+    document.getElementById("ticker").innerHTML = dynamicCommentary;
     
     updateInterfaceMetrics();
     evaluateThresholdCrossing();
