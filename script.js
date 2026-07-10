@@ -1,28 +1,28 @@
 const statesData = {
-    "Alabama": { ev: 9, probRed: 0.95, turnout: 2200000 }, "Alaska": { ev: 3, probRed: 0.85, turnout: 350000 },
+    "Alabama": { ev: 9, probRed: 0.95, turnout: 2200000 }, "Alaska": { ev: 3, probRed: 0.59, turnout: 350000 },
     "Arizona": { ev: 11, probRed: 0.51, turnout: 3300000 }, "Arkansas": { ev: 6, probRed: 0.95, turnout: 1200000 },
-    "California": { ev: 54, probRed: 0.05, turnout: 15300000 }, "Colorado": { ev: 10, probRed: 0.15, turnout: 3200000 },
+    "California": { ev: 54, probRed: 0.05, turnout: 15300000 }, "Colorado": { ev: 10, probRed: 0.41, turnout: 3200000 },
     "Connecticut": { ev: 7, probRed: 0.05, turnout: 1800000 }, "Delaware": { ev: 3, probRed: 0.05, turnout: 500000 },
-    "District of Columbia": { ev: 3, probRed: 0.01, turnout: 300000 }, "Florida": { ev: 30, probRed: 0.75, turnout: 10600000 },
+    "District of Columbia": { ev: 3, probRed: 0.01, turnout: 300000 }, "Florida": { ev: 30, probRed: 0.56, turnout: 10600000 },
     "Georgia": { ev: 16, probRed: 0.51, turnout: 4900000 }, "Hawaii": { ev: 4, probRed: 0.05, turnout: 550000 },
     "Idaho": { ev: 4, probRed: 0.95, turnout: 850000 }, "Illinois": { ev: 19, probRed: 0.10, turnout: 5500000 },
-    "Indiana": { ev: 11, probRed: 0.85, turnout: 3000000 }, "Iowa": { ev: 6, probRed: 0.80, turnout: 1600000 },
-    "Kansas": { ev: 6, probRed: 0.85, turnout: 1300000 }, "Kentucky": { ev: 8, probRed: 0.95, turnout: 2100000 },
-    "Louisiana": { ev: 8, probRed: 0.95, turnout: 2000000 }, "Maine": { ev: 4, probRed: 0.20, turnout: 800000 },
+    "Indiana": { ev: 11, probRed: 0.80, turnout: 3000000 }, "Iowa": { ev: 6, probRed: 0.57, turnout: 1600000 },
+    "Kansas": { ev: 6, probRed: 0.80, turnout: 1300000 }, "Kentucky": { ev: 8, probRed: 0.95, turnout: 2100000 },
+    "Louisiana": { ev: 8, probRed: 0.95, turnout: 2000000 }, "Maine": { ev: 4, probRed: 0.42, turnout: 800000 },
     "Maryland": { ev: 10, probRed: 0.05, turnout: 3000000 }, "Massachusetts": { ev: 11, probRed: 0.05, turnout: 3600000 },
-    "Michigan": { ev: 15, probRed: 0.49, turnout: 5400000 }, "Minnesota": { ev: 10, probRed: 0.20, turnout: 3200000 },
-    "Mississippi": { ev: 6, probRed: 0.95, turnout: 1200000 }, "Missouri": { ev: 10, probRed: 0.85, turnout: 3000000 },
-    "Montana": { ev: 4, probRed: 0.85, turnout: 600000 }, "Nebraska": { ev: 5, probRed: 0.85, turnout: 950000 },
-    "Nevada": { ev: 6, probRed: 0.49, turnout: 1400000 }, "New Hampshire": { ev: 4, probRed: 0.25, turnout: 800000 },
-    "New Jersey": { ev: 14, probRed: 0.12, turnout: 4100000 }, "New Mexico": { ev: 5, probRed: 0.20, turnout: 900000 },
-    "New York": { ev: 28, probRed: 0.05, turnout: 8000000 }, "North Carolina": { ev: 16, probRed: 0.52, turnout: 5400000 },
-    "North Dakota": { ev: 3, probRed: 0.95, turnout: 350000 }, "Ohio": { ev: 17, probRed: 0.75, turnout: 5500000 },
-    "Oklahoma": { ev: 7, probRed: 0.95, turnout: 1500000 }, "Oregon": { ev: 8, probRed: 0.10, turnout: 2300000 },
-    "Pennsylvania": { ev: 19, probRed: 0.50, turnout: 6800000 }, "Rhode Island": { ev: 4, probRed: 0.05, turnout: 500000 },
-    "South Carolina": { ev: 9, probRed: 0.85, turnout: 2500000 }, "South Dakota": { ev: 3, probRed: 0.95, turnout: 400000 },
-    "Tennessee": { ev: 11, probRed: 0.95, turnout: 3000000 }, "Texas": { ev: 40, probRed: 0.80, turnout: 11200000 },
-    "Utah": { ev: 6, probRed: 0.90, turnout: 1400000 }, "Vermont": { ev: 3, probRed: 0.02, turnout: 350000 },
-    "Virginia": { ev: 13, probRed: 0.20, turnout: 4300000 }, "Washington": { ev: 12, probRed: 0.10, turnout: 4000000 },
+    "Michigan": { ev: 15, probRed: 0.48, turnout: 5400000 }, "Minnesota": { ev: 10, probRed: 0.44, turnout: 3200000 },
+    "Mississippi": { ev: 6, probRed: 0.85, turnout: 1200000 }, "Missouri": { ev: 10, probRed: 0.80, turnout: 3000000 },
+    "Montana": { ev: 4, probRed: 0.80, turnout: 600000 }, "Nebraska": { ev: 5, probRed: 0.80, turnout: 950000 },
+    "Nevada": { ev: 6, probRed: 0.50, turnout: 1400000 }, "New Hampshire": { ev: 4, probRed: 0.46, turnout: 800000 },
+    "New Jersey": { ev: 14, probRed: 0.18, turnout: 4100000 }, "New Mexico": { ev: 5, probRed: 0.42, turnout: 900000 },
+    "New York": { ev: 28, probRed: 0.12, turnout: 8000000 }, "North Carolina": { ev: 16, probRed: 0.53, turnout: 5400000 },
+    "North Dakota": { ev: 3, probRed: 0.95, turnout: 350000 }, "Ohio": { ev: 17, probRed: 0.58, turnout: 5500000 },
+    "Oklahoma": { ev: 7, probRed: 0.95, turnout: 1500000 }, "Oregon": { ev: 8, probRed: 0.15, turnout: 2300000 },
+    "Pennsylvania": { ev: 19, probRed: 0.51, turnout: 6800000 }, "Rhode Island": { ev: 4, probRed: 0.05, turnout: 500000 },
+    "South Carolina": { ev: 9, probRed: 0.80, turnout: 2500000 }, "South Dakota": { ev: 3, probRed: 0.95, turnout: 400000 },
+    "Tennessee": { ev: 11, probRed: 0.95, turnout: 3000000 }, "Texas": { ev: 40, probRed: 0.55, turnout: 11200000 },
+    "Utah": { ev: 6, probRed: 0.85, turnout: 1400000 }, "Vermont": { ev: 3, probRed: 0.02, turnout: 350000 },
+    "Virginia": { ev: 13, probRed: 0.45, turnout: 4300000 }, "Washington": { ev: 12, probRed: 0.10, turnout: 4000000 },
     "West Virginia": { ev: 4, probRed: 0.95, turnout: 750000 }, "Wisconsin": { ev: 10, probRed: 0.49, turnout: 3400000 },
     "Wyoming": { ev: 3, probRed: 0.95, turnout: 270000 }
 };
@@ -160,7 +160,9 @@ document.getElementById("simSpeed").addEventListener("input", (e) => {
 function syncSystemConfigurations() {
     demTotal = 0; repTotal = 0; thirdTotal = 0;
     demPopVotes = 0; repPopVotes = 0; thirdPopVotes = 0;
-    uncalledStates = [];
+    
+    let safeStates = [];
+    let battlegroundStates = [];
 
     Object.keys(statesData).forEach(name => {
         const info = statesData[name];
@@ -171,9 +173,26 @@ function syncSystemConfigurations() {
         } else if (stateManualStatus[name] === 'third' && thirdInput.value.trim() !== "") {
             thirdTotal += info.ev; thirdPopVotes += Math.round(info.turnout * 0.75); demPopVotes += Math.round(info.turnout * 0.12); repPopVotes += Math.round(info.turnout * 0.12);
         } else {
-            uncalledStates.push(name);
+            // Sort by base competitive metrics (40% to 60% probability range)
+            if (info.probRed >= 0.40 && info.probRed <= 0.60) {
+                battlegroundStates.push(name);
+            } else {
+                safeStates.push(name);
+            }
         }
     });
+
+    // Array shuffle utility
+    const shuffle = (array) => {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    };
+
+    // Stack array so safe states sit at the end and get popped off first
+    uncalledStates = [...shuffle(battlegroundStates), ...shuffle(safeStates)];
     updateInterfaceMetrics();
 }
 
@@ -185,8 +204,8 @@ function processNextState() {
     const activeThirdName = thirdInput.value.trim();
     const isThirdActive = activeThirdName !== "";
 
-    const randIndex = Math.floor(Math.random() * uncalledStates.length);
-    const stateName = uncalledStates.splice(randIndex, 1)[0];
+    // Pluck the next state cleanly off the pre-sorted stack
+    const stateName = uncalledStates.pop();
     const stateInfo = statesData[stateName];
 
     const slant = parseInt(document.getElementById("partisanTilt").value); 
@@ -203,7 +222,6 @@ function processNextState() {
         redBaseShare += (swing / 80); 
     }
 
-    // Toned down from /50 to /250 so chaos represents a realistic ±20% max swing instead of ±50%
     if (chaos > 0) {
         const noise = (Math.random() - 0.5) * (chaos / 250); 
         redBaseShare += noise;
@@ -224,19 +242,15 @@ function processNextState() {
         finalBlueShare *= sliceRemainder;
     }
 
-    // --- FUN FEATURE EXTRA: THE RECOUNT & INTERCEPT SYSTEM ---
-    // Widened the recount threshold from 0.006 (0.6%) to 0.015 (1.5%) for better simulation balance
     let initialMargin = Math.abs(finalRedShare - finalBlueShare);
     let isRecount = initialMargin < 0.015 && finalThirdShare < finalRedShare && finalThirdShare < finalBlueShare;
     
     if (isRecount) {
-        // Apply microscopic variance shift during the recount phase
         const recountAuditShift = (Math.random() - 0.5) * 0.003; 
         finalRedShare = Math.max(0, finalRedShare + recountAuditShift);
         finalBlueShare = Math.max(0, finalBlueShare - recountAuditShift);
     }
 
-    // Final Crown Determination post-recount audit logic
     let stateWinner = 'blue', finalColor = "#3b82f6";
     if (finalRedShare > finalBlueShare && finalRedShare > finalThirdShare) {
         stateWinner = 'red'; finalColor = "#ef4444";
@@ -244,7 +258,6 @@ function processNextState() {
         stateWinner = 'third'; finalColor = "#eab308";
     }
 
-    // Commit metrics to board counters
     repPopVotes += Math.round(stateInfo.turnout * finalRedShare);
     demPopVotes += Math.round(stateInfo.turnout * finalBlueShare);
     thirdPopVotes += Math.round(stateInfo.turnout * finalThirdShare);
@@ -270,7 +283,6 @@ function processNextState() {
     let winningPercentage = (partyShareMap[stateWinner] * 100).toFixed(1);
     const isUpset = (stateWinner === 'red' && stateInfo.probRed <= 0.20) || (stateWinner === 'blue' && stateInfo.probRed >= 0.80);
 
-    // Phrase Matrix router updates
     let phrasePool = [];
     if (isRecount) {
         phrasePool = tickerCommentary.recountEvent;
