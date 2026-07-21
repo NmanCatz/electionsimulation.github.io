@@ -3,19 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Compact US Election Sandbox</title>
+    <title>Multi-Era Election Sandbox</title>
     <!-- External Dependencies -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://unpkg.com/topojson@3"></script>
-    <!-- Custom Stylesheet -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <h1>Interactive US Election Simulator</h1>
+    <!-- Header & Era Status Hub -->
+    <div class="top-header">
+        <h1>Interactive US Election Simulator</h1>
+        <div class="era-badge-row">
+            <span class="era-tag" id="yearTag">YEAR: 2024</span>
+            <span class="era-tag incumbent-tag" id="incumbentTag">INCUMBENT: NONE</span>
+            <span class="era-tag" id="streakTag">DYNASTY: 0 WINS</span>
+        </div>
+    </div>
+    
     <div class="subtitle">Tap map states to cycle manual overrides | Clear Third Party box to run standard two-party system</div>
 
-    <!-- Compact Unified Score Tracker Frame (Kept at the top of the map) -->
+    <!-- Scoreboard Frame -->
     <div class="scoreboard-container">
         <div class="score-flex">
             <div class="hero-block dem-brand dem-c" id="demHero">
@@ -50,21 +58,23 @@
         </div>
     </div>
 
-    <!-- Map Canvas Window Target (Moved up top) -->
+    <!-- Map Canvas Window -->
     <div id="map-container">
         <div class="tooltip" id="tooltip"></div>
     </div>
 
-    <!-- Simulation Live Status Ticker -->
+    <!-- Simulation Live Ticker -->
     <div id="ticker">Configure variables and tap run to execute tracking loops...</div>
 
-    <!-- Control Action Buttons -->
+    <!-- Action Shelf Row -->
     <div class="shelf">
         <button id="playBtn">Run Election Simulation</button>
-        <button id="resetBtn">Reset Map Board</button>
+        <button id="nextBtn" disabled>Advance 4 Years (+4) ⏩</button>
+        <button id="resetBtn">Reset Map</button>
+        <button id="vaultBtn" class="secondary-btn">📜 History (<span id="historyCount">0</span>)</button>
     </div>
 
-    <!-- 4x2 Hyper-Compact Variable Panel Matrix (Moved to the bottom) -->
+    <!-- 4x2 Control Grid -->
     <div class="control-grid">
         <div class="panel-card">
             <label>Blue Candidate</label>
@@ -100,7 +110,19 @@
         </div>
     </div>
 
-    <!-- Custom Simulation Script -->
+    <!-- History Vault Modal Drawer -->
+    <div class="modal-overlay" id="historyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📜 Election History & Dynasties</h2>
+                <button class="close-btn" id="closeVaultBtn">&times;</button>
+            </div>
+            <div id="achievementsBox" class="achievements-box"></div>
+            <div id="historyList" class="history-list"></div>
+            <button id="clearHistoryBtn" class="danger-btn">Clear All History</button>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>

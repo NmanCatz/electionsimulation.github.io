@@ -1,4 +1,4 @@
-const statesData = {
+const initialStatesData = {
     "Alabama": { ev: 9, probRed: 0.95, turnout: 2200000 }, "Alaska": { ev: 3, probRed: 0.59, turnout: 350000 },
     "Arizona": { ev: 11, probRed: 0.51, turnout: 3300000 }, "Arkansas": { ev: 6, probRed: 0.95, turnout: 1200000 },
     "California": { ev: 54, probRed: 0.05, turnout: 15300000 }, "Colorado": { ev: 10, probRed: 0.41, turnout: 3200000 },
@@ -27,7 +27,8 @@ const statesData = {
     "Wyoming": { ev: 3, probRed: 0.95, turnout: 270000 }
 };
 
-// --- DYNAMIC TICKER COMMENTARY PHRASE MATRIX ---
+let statesData = JSON.parse(JSON.stringify(initialStatesData));
+
 const tickerCommentary = {
     safeWin: [
         "⚡ <strong>[State] ([EV] EV)</strong> holds the line for the [Candidate]. No surprises here.",
@@ -55,11 +56,19 @@ const tickerCommentary = {
     ]
 };
 
+// State Variables
 let uncalledStates = [];
 let stateManualStatus = {}; 
 let demTotal = 0, repTotal = 0, thirdTotal = 0;
 let demPopVotes = 0, repPopVotes = 0, thirdPopVotes = 0;
 let simInterval = null, isRunning = false, winnerAlerted = null;
+
+// Multi-Year Tracking State
+let currentYear = 2024;
+let incumbentParty = null; // 'blue', 'red', or 'third'
+let incumbentName = "None";
+let partyStreak = { party: null, count: 0 };
+let electionHistory = JSON.parse(localStorage.getItem("election_history_vault")) || [];
 
 const demInput = document.getElementById("demNameInput");
 const repInput = document.getElementById("repNameInput");
@@ -81,7 +90,9 @@ d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json").then(us => {
                 if (stateManualStatus[name] === 'blue') lockStatus = "Status: Locked Blue 🔵";
                 if (stateManualStatus[name] === 'third') lockStatus = "Status: Locked Third Party 🟡";
                 if (stateManualStatus[name] === 'red') lockStatus = "Status: Locked Red 🔴";
-                tooltip.style("opacity", 1).html(`<strong>${name} (${info.ev} EV)</strong><br><span style="color:#a78bfa">${lockStatus}</span>`);
+                
+                const redPct = (info.probRed * 100).toFixed(0);
+                tooltip.style("opacity", 1).html(`<strong>${name} (${info.ev} EV)</strong><br>Base Lean: ${redPct}% Red / ${100 - redPct}% Blue<br><span style="color:#a78bfa">${lockStatus}</span>`);
             }
         })
         .on("mousemove", function(e) {
@@ -106,6 +117,7 @@ d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json").then(us => {
             syncSystemConfigurations();
         });
     resetSimulation();
+    updateHistoryVaultUI();
 });
 
 function evaluateThirdPartyPresence() {
@@ -131,7 +143,7 @@ thirdInput.addEventListener("input", evaluateThirdPartyPresence);
 demInput.addEventListener("input", () => document.getElementById("demLabelName").innerText = demInput.value);
 repInput.addEventListener("input", () => document.getElementById("repLabelName").innerText = repInput.value);
 
-// Sliders and descriptive formatting logic
+// Sliders and formatting logic
 document.getElementById("partisanTilt").addEventListener("input", (e) => {
     const v = parseInt(e.target.value);
     let t = "Balanced";
@@ -148,7 +160,7 @@ document.getElementById("swingTilt").addEventListener("input", (e) => {
 });
 document.getElementById("chaosFactor").addEventListener("input", (e) => {
     const v = parseInt(e.target.value);
-    let t = "Low"; if (v > 30) t = "Moderate"; if (v > 65) t = "High"; if (v > 90) t = "Total Chaos Chaos 🔥";
+    let t = "Low"; if (v > 30) t = "Moderate"; if (v > 65) t = "High"; if (v > 90) t = "Total Chaos 🔥";
     document.getElementById("chaosLabel").innerText = `Chaos / Volatility: ${t} (${v}%)`;
 });
 document.getElementById("thirdStrength").addEventListener("input", (e) => document.getElementById("thirdLabel").innerText = `Third Party Appeal: ${e.target.value}%`);
@@ -173,7 +185,6 @@ function syncSystemConfigurations() {
         } else if (stateManualStatus[name] === 'third' && thirdInput.value.trim() !== "") {
             thirdTotal += info.ev; thirdPopVotes += Math.round(info.turnout * 0.75); demPopVotes += Math.round(info.turnout * 0.12); repPopVotes += Math.round(info.turnout * 0.12);
         } else {
-            // Sort by base competitive metrics (40% to 60% probability range)
             if (info.probRed >= 0.40 && info.probRed <= 0.60) {
                 battlegroundStates.push(name);
             } else {
@@ -182,7 +193,6 @@ function syncSystemConfigurations() {
         }
     });
 
-    // Array shuffle utility
     const shuffle = (array) => {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -191,7 +201,6 @@ function syncSystemConfigurations() {
         return array;
     };
 
-    // Stack array so safe states sit at the end and get popped off first
     uncalledStates = [...shuffle(battlegroundStates), ...shuffle(safeStates)];
     updateInterfaceMetrics();
 }
@@ -204,7 +213,6 @@ function processNextState() {
     const activeThirdName = thirdInput.value.trim();
     const isThirdActive = activeThirdName !== "";
 
-    // Pluck the next state cleanly off the pre-sorted stack
     const stateName = uncalledStates.pop();
     const stateInfo = statesData[stateName];
 
@@ -348,13 +356,150 @@ function evaluateThresholdCrossing() {
 }
 
 function finalizeBoard() {
+    let winnerParty = null;
+    let winnerName = "";
+    
+    if (demTotal > repTotal && demTotal > thirdTotal) {
+        winnerParty = 'blue'; winnerName = demInput.value;
+    } else if (repTotal > demTotal && repTotal > thirdTotal) {
+        winnerParty = 'red'; winnerName = repInput.value;
+    } else if (thirdTotal > demTotal && thirdTotal > repTotal) {
+        winnerParty = 'third'; winnerName = thirdInput.value.trim() || "Third Party";
+    }
+
     let txt = "Simulation Finished: ";
-    if(demTotal > repTotal && demTotal > thirdTotal) txt += `${demInput.value} win plural majority!`;
-    else if(repTotal > demTotal && repTotal > thirdTotal) txt += `${repInput.value} win plural majority!`;
-    else if(thirdTotal > demTotal && thirdTotal > repTotal) txt += `${thirdInput.value.trim()} secure absolute upset!`;
-    else txt += "Contested / No Majority reached inside Electoral College.";
+    if (winnerParty) {
+        txt += `${winnerName} wins the ${currentYear} Election!`;
+    } else {
+        txt += "Contested / No Majority reached inside Electoral College.";
+    }
+    
     document.getElementById("ticker").innerHTML = `🏁 <strong>${txt.toUpperCase()}</strong>`;
+    
+    // Save Result to History
+    saveElectionRun(winnerParty, winnerName);
+    
+    // Enable 4-Year Fast Forward
+    document.getElementById("nextBtn").disabled = false;
 }
+
+function saveElectionRun(winnerParty, winnerName) {
+    const totalVotes = demPopVotes + repPopVotes + thirdPopVotes;
+    const isPVWinner = (winnerParty === 'blue' && demPopVotes >= repPopVotes && demPopVotes >= thirdPopVotes) ||
+                       (winnerParty === 'red' && repPopVotes >= demPopVotes && repPopVotes >= thirdPopVotes) ||
+                       (winnerParty === 'third' && thirdPopVotes >= demPopVotes && thirdPopVotes >= repPopVotes);
+
+    const record = {
+        year: currentYear,
+        winnerParty,
+        winnerName,
+        demName: demInput.value,
+        repName: repInput.value,
+        thirdName: thirdInput.value.trim(),
+        demEV: demTotal,
+        repEV: repTotal,
+        thirdEV: thirdTotal,
+        demPV: demPopVotes,
+        repPV: repPopVotes,
+        thirdPV: thirdPopVotes,
+        pvSplit: winnerParty && !isPVWinner
+    };
+
+    // Update Dynasties & Streaks
+    if (partyStreak.party === winnerParty) {
+        partyStreak.count++;
+    } else {
+        partyStreak.party = winnerParty;
+        partyStreak.count = 1;
+    }
+
+    incumbentParty = winnerParty;
+    incumbentName = winnerName;
+
+    document.getElementById("incumbentTag").innerText = `INCUMBENT: ${incumbentName.toUpperCase()} (${incumbentParty ? incumbentParty.toUpperCase() : 'NONE'})`;
+    document.getElementById("streakTag").innerText = `DYNASTY: ${partyStreak.count} IN A ROW (${partyStreak.party ? partyStreak.party.toUpperCase() : '-'})`;
+
+    electionHistory.unshift(record);
+    localStorage.setItem("election_history_vault", JSON.stringify(electionHistory));
+    updateHistoryVaultUI();
+}
+
+function updateHistoryVaultUI() {
+    document.getElementById("historyCount").innerText = electionHistory.length;
+    const container = document.getElementById("historyList");
+    container.innerHTML = "";
+
+    if (electionHistory.length === 0) {
+        container.innerHTML = "<div style='color:#6b7280; text-align:center; padding:20px;'>No elections simulated yet! Run your first election to populate the vault.</div>";
+        document.getElementById("achievementsBox").innerHTML = "";
+        return;
+    }
+
+    // Achievements calculation
+    const achievements = [];
+    if (electionHistory.some(e => e.thirdEV > 0)) achievements.push("🟨 Third Party Electoral Breach");
+    if (electionHistory.some(e => e.pvSplit)) achievements.push("⚡ Electoral College / PV Split");
+    if (electionHistory.some(e => e.demEV >= 350 || e.repEV >= 350 || e.thirdEV >= 350)) achievements.push("🌊 350+ EV Electoral Landslide");
+    if (partyStreak.count >= 3) achievements.push("👑 3-Term Political Dynasty");
+
+    const achBox = document.getElementById("achievementsBox");
+    achBox.innerHTML = achievements.map(a => `<span class="achieve-badge">${a}</span>`).join("");
+
+    electionHistory.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "history-card";
+        const color = item.winnerParty === 'blue' ? '#3b82f6' : item.winnerParty === 'red' ? '#ef4444' : item.winnerParty === 'third' ? '#eab308' : '#9ca3af';
+        
+        card.innerHTML = `
+            <div class="history-card-header">
+                <span>YEAR ${item.year}</span>
+                <span style="color: ${color}">WINNER: ${item.winnerName ? item.winnerName.toUpperCase() : 'CONTESTED'}</span>
+            </div>
+            <div class="history-summary">
+                🔵 ${item.demName}: ${item.demEV} EV (${(item.demPV / 1000000).toFixed(1)}M votes)<br>
+                🔴 ${item.repName}: ${item.repEV} EV (${(item.repPV / 1000000).toFixed(1)}M votes)
+                ${item.thirdName ? `<br>🟡 ${item.thirdName}: ${item.thirdEV} EV (${(item.thirdPV / 1000000).toFixed(1)}M votes)` : ''}
+                ${item.pvSplit ? `<br><strong style="color:#f59e0b">⚠️ Lost Popular Vote but Won Electoral College!</strong>` : ''}
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// "Advance 4 Years" Engine logic
+document.getElementById("nextBtn").addEventListener("click", () => {
+    currentYear += 4;
+    document.getElementById("yearTag").innerText = `YEAR: ${currentYear}`;
+    document.getElementById("nextBtn").disabled = true;
+
+    // Apply 4-Year Midterm/Incumbent Backlash & Demographic Drift
+    Object.keys(statesData).forEach(name => {
+        let currentProb = statesData[name].probRed;
+        
+        // 1. Incumbent Penalty: Voters naturally tire of the ruling party (-2% to -4% shift away)
+        if (incumbentParty === 'red') {
+            currentProb -= (0.02 + Math.random() * 0.02); // Shift bluer
+        } else if (incumbentParty === 'blue') {
+            currentProb += (0.02 + Math.random() * 0.02); // Shift redder
+        }
+
+        // 2. Random 4-Year Regional Drift (±1.5%)
+        const drift = (Math.random() - 0.5) * 0.03;
+        currentProb = Math.max(0.02, Math.min(0.98, currentProb + drift));
+
+        statesData[name].probRed = currentProb;
+    });
+
+    // Reset Map Board while preserving Incumbent Candidate Name
+    if (incumbentParty === 'blue') {
+        repInput.value = `Challenger (${currentYear})`;
+    } else if (incumbentParty === 'red') {
+        demInput.value = `Challenger (${currentYear})`;
+    }
+
+    resetSimulation();
+    document.getElementById("ticker").innerText = `⚡ Welcome to the ${currentYear} Election! Incumbent: ${incumbentName}. Adjust variables and hit Run.`;
+});
 
 function updateButtons() {
     const b = document.getElementById("playBtn");
@@ -379,7 +524,6 @@ function resetSimulation() {
     });
     
     evaluateThirdPartyPresence();
-    document.getElementById("ticker").innerText = "Configure variables and tap run to execute tracking loops...";
     updateButtons();
 }
 
@@ -394,4 +538,27 @@ document.getElementById("playBtn").addEventListener("click", () => {
     }
     updateButtons();
 });
-document.getElementById("resetBtn").addEventListener("click", () => { stateManualStatus = {}; resetSimulation(); });
+
+document.getElementById("resetBtn").addEventListener("click", () => { 
+    stateManualStatus = {}; 
+    statesData = JSON.parse(JSON.stringify(initialStatesData)); 
+    resetSimulation(); 
+});
+
+// Vault Modal Controls
+document.getElementById("vaultBtn").addEventListener("click", () => document.getElementById("historyModal").classList.add("active"));
+document.getElementById("closeVaultBtn").addEventListener("click", () => document.getElementById("historyModal").classList.remove("active"));
+document.getElementById("clearHistoryBtn").addEventListener("click", () => {
+    if (confirm("Clear all past election records and reset dynasty streaks?")) {
+        electionHistory = [];
+        partyStreak = { party: null, count: 0 };
+        incumbentParty = null;
+        incumbentName = "None";
+        currentYear = 2024;
+        localStorage.removeItem("election_history_vault");
+        document.getElementById("yearTag").innerText = "YEAR: 2024";
+        document.getElementById("incumbentTag").innerText = "INCUMBENT: NONE";
+        document.getElementById("streakTag").innerText = "DYNASTY: 0 WINS";
+        updateHistoryVaultUI();
+    }
+});
